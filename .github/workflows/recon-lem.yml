@@ -1,0 +1,31 @@
+name: recon-lem
+on:
+  workflow_dispatch:
+    inputs:
+      months:
+        description: "Comma-separated months, e.g. 2017-12,2018-01,2019-01 (max 40, 2017-08 to 2025-12)"
+        required: true
+        default: "2017-12,2018-01,2019-01"
+permissions:
+  contents: read
+jobs:
+  months:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      MONTHS: ${{ inputs.months }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python scripts/recon_le_months.py --self-test
+      - run: python scripts/recon_le_months.py --run --months "$MONTHS" --output lem-evidence
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: recon-lem-evidence
+          path: lem-evidence
+          retention-days: 14
