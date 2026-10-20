@@ -1,0 +1,24 @@
+name: recon-le
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python scripts/recon_le_probe.py --self-test
+      - run: python scripts/recon_le_probe.py --probe --output le-evidence
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: recon-le-evidence
+          path: le-evidence
+          retention-days: 14
