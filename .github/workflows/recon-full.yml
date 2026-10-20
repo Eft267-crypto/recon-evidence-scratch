@@ -1,0 +1,36 @@
+name: recon-full
+on:
+  workflow_dispatch:
+    inputs:
+      offset:
+        description: "Start index (0 to 624)"
+        required: true
+        default: "0"
+      count:
+        description: "Number of dates (1 to 140)"
+        required: true
+        default: "140"
+permissions:
+  contents: read
+jobs:
+  full:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      BATCH_OFFSET: ${{ inputs.offset }}
+      BATCH_COUNT: ${{ inputs.count }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python scripts/recon_full.py --self-test
+      - run: python scripts/recon_full.py --run --output full-evidence --offset "$BATCH_OFFSET" --count "$BATCH_COUNT"
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: recon-full-evidence-${{ inputs.offset }}
+          path: full-evidence
+          retention-days: 14
