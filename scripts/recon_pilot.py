@@ -14,7 +14,7 @@ MAX_PAGES_PER_DATE = 3
 
 def sub_url(d):
     y, m, dd = d.split("-")
-    return f"https://{HOST}/news24/sitemapindex/0/{y}/{m}/{dd}"
+    return f"https://{HOST}/sitemapindex/0/{y}/{m}/{dd}"
 
 def pick_pages(xml_text, d):
     """Lottery result URLs for exactly this date, on the exact host only."""
@@ -29,7 +29,7 @@ def pick_pages(xml_text, d):
     return out[:MAX_PAGES_PER_DATE]
 
 def self_test():
-    assert len(DATES) == 20 and sub_url("2020-06-03").endswith("/0/2020/06/03")
+    assert len(DATES) == 20 and sub_url("2020-06-03").endswith("/sitemapindex/0/2020/06/03") and "/news24/" not in sub_url("2020-06-03")
     xml = ("<urlset><url><loc>https://www.news24.com/lottery/results/a-lotto-20200603</loc></url>"
            "<url><loc>https://evil.example/lottery/lotto-20200603</loc></url>"
            "<url><loc>https://www.news24.com/sport/x-20200603</loc></url>"
