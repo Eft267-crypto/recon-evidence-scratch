@@ -1,0 +1,42 @@
+name: RECON Evidence Capture
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: recon-evidence-capture
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout scratch repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Offline self-test
+        run: python scripts/recon_capture.py --self-test
+
+      - name: Capture permitted raw evidence
+        run: python scripts/recon_capture.py --capture --output recon-evidence
+
+      - name: Upload evidence (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: recon-raw-evidence
+          path: recon-evidence/
+          if-no-files-found: warn
+          retention-days: 14
